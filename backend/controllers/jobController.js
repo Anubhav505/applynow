@@ -25,37 +25,64 @@ export const jobCreate = async (req, res) => {
 
 //update job post
 export const jobUpdate = async (req, res) => {
-    const job = await Job.findByIdAndUpdate(
-        req.params.id,
-        req.body,
-    )
+    try {
+        const job = await Job.findById(req.params.id)
 
-    if (!job) {
-        return res.status(404).json({
-            message: "unable to update"
+        if (!job) {
+            return res.status(404).json({
+                message: "unable to update"
+            })
+        }
+
+        if (!job.createdBy.equals(req.user.id)) {
+            return res.status(403).json({ message: "Not allowed" });
+        }
+
+        await Job.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { returnDocument: "after" }
+        )
+
+        res.status(200).json({
+            message: "job updated sucessfully"
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
         })
     }
-
-    res.status(200).json({
-        message: "job updated sucessfully"
-    })
 }
 
 //delete job post
 export const jobDelete = async (req, res) => {
-    const job = await Job.findByIdAndDelete(
-        req.params.id
-    )
+    try {
+        const job = await Job.findById(req.params.id)
 
-    if (!job) {
-        return res.status(500).json({
-            message: "unable to delete"
+        if (!job) {
+            return res.status(404).json({
+                message: "no job ffound"
+            })
+        }
+
+        if (!job.createdBy.equals(req.user.id)) {
+            return res.status(403).json({
+                message: "not allowed"
+            })
+        }
+
+        await Job.findByIdAndDelete(
+            req.params.id
+        )
+
+        res.status(200).json({
+            message: "job deleted sucessfully"
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
         })
     }
-
-    res.status(201).json({
-        message: "job deleted sucessfully"
-    })
 }
 
 //get all job post
@@ -64,10 +91,41 @@ export const getAllJobs = async (req, res) => {
     res.status(200).json(jobs)
 }
 
-//get Single job post
+//get single job details 
 export const getSingleJob = async (req, res) => {
-    const jobs = await Job.findById(req.params.id)
-    res.status(200).json(jobs)
+    try {
+        const job = await Job.findById(req.params.id)
+        res.status(200).json(job)
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        })
+    }
+}
+
+//get job details for edit if user is creator of job
+export const getJobForEdit = async (req, res) => {
+    try {
+        const job = await Job.findById(req.params.id)
+        if (!job) {
+            return res.status(404).json({
+                message: "Job not found"
+            })
+        }
+
+        if (!job.createdBy.equals(req.user.id)) {
+            return res.status(403).json({
+                message: "not allowed"
+            })
+        }
+
+        res.status(200).json(job)
+        
+    } catch (error) {
+        res.status(500).json({
+            message: error.message
+        })
+    }
 }
 
 //apply job
@@ -85,30 +143,46 @@ export const applyJob = async (req, res) => {
 
 //view applied jobs
 export const appliedJobs = async (req, res) => {
-    const applications = await Application.find({user : req.user.id}).populate("job")
-    res.status(200).json({applications, message : "view applied jobs"})
+    const applications = await Application.find({ 
+        user: req.user.id 
+    }).populate("job")
+
+    res.status(200).json({ 
+        applications, 
+        message: "view applied jobs"
+    })
 }
 
 //my-posted-jobs
 export const myPostedJobs = async (req, res) => {
     const myPostedJobs = await Job.find({
         createdBy: req.user.id
-    }).sort({createdAt: -1})
+    }).sort({ createdAt: -1 })
+    
     res.status(200).json({
         myPostedJobs,
-        message : "My Posted Jobs"
+        message: "My Posted Jobs"
     })
 }
 
 // view applicants applied to job
 export const applicants = async (req, res) => {
-    const viewApplicants = await Application.find({job : req.params.id}).populate("user")
-    res.status(200).json({viewApplicants, message: "users found"})
+    const viewApplicants = await Application.find({
+        job: req.params.id
+    }).populate("user")
+    
+    res.status(200).json({
+        viewApplicants,
+        message: "users found"
+    })
 }
 
 //view applicant's profile 
 export const applicantProfile = async (req, res) => {
-    const {id} = req.params
-    const findApplicantDetails = await User.findById(id)
-    res.status(200).json({findApplicantDetails, message: "users found"})
+    const findApplicantDetails = await User.findById(req.params.id)
+    
+    res.status(200).json({
+        findApplicantDetails,
+        message: "users found"
+    })
 }

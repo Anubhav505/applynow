@@ -36,7 +36,7 @@ const Applicants = () => {
 
                 <div>
                   <h1 className="text-xl font-semibold text-gray-800">
-                    {applicant.user.username}
+                    {applicant.user.fullName}
                   </h1>
 
                   <p className="text-gray-500 mt-1">

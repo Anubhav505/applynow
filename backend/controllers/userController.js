@@ -82,7 +82,7 @@ export const login = async (req, res) => {
 
       res.cookie("token", token, {
          httpOnly: true,
-         secure: false,
+         secure: true,
          sameSite: "strict",
          maxAge: 5 * 60 * 60 * 1000
       })
@@ -128,7 +128,8 @@ export const getProfile = async (req, res) => {
          })
       }
       res.status(200).json({
-         user, message: "user profile details fetched sucessfully"
+         user, 
+         message: "user profile details fetched sucessfully"
       })
    } catch (error) {
       res.status(500).json({
