@@ -1,5 +1,5 @@
 import express from "express"
-import {jobCreate, jobDelete, jobUpdate, getAllJobs, getSingleJob, applyJob, appliedJobs, myPostedJobs, applicants, applicantProfile} from "../controllers/jobController.js"
+import {jobCreate, jobDelete, jobUpdate, getAllJobs, getSingleJob, getJobForEdit, applyJob, appliedJobs, myPostedJobs, applicants, applicantProfile} from "../controllers/jobController.js"
 import authMiddleware from "../middlewares/authMiddleware.js";
 
 const router = express.Router()
@@ -18,6 +18,9 @@ router.get("/getAllJobs", authMiddleware, getAllJobs)
 
 //get single job detail
 router.get("/getSingleJob/:id", authMiddleware, getSingleJob)
+
+//get job details for edit if user is creator of job
+router.get("/getJobForEdit/:id", authMiddleware, getJobForEdit)
 
 //apply job
 router.post("/applyJob/:id", authMiddleware, applyJob)

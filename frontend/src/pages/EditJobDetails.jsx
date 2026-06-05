@@ -6,24 +6,29 @@ import { api } from "../api"
 const EditJobDetails = () => {
 
   const navigate = useNavigate()
-  
+
   const { id } = useParams()
-  
+
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
 
   useEffect(() => {
     const fetchJobDetails = async () => {
-      const res = await api.get(`/jobs/getSingleJob/${id}`)
-      setTitle(res.data.title)
-      setDescription(res.data.description)
+      try {
+        const res = await api.get(`/jobs/getJobForEdit/${id}`)
+        setTitle(res.data.title)
+        setDescription(res.data.description)
+      } catch (error) {
+        if (error.response?.status === 403) {
+          navigate("/jobs")
+        }
+      }
     }
     fetchJobDetails()
   }, [id])
 
   const handleUpdateJobDetails = async (e) => {
     e.preventDefault()
-
     const res = await api.put(`/jobs/update/${id}`,
       {
         title,

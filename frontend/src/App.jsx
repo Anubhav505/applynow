@@ -17,10 +17,12 @@ import MyPostedJobs from "./pages/MyJobs";
 import Applicants from "./pages/Applicants";
 import ApplicantProfile from "./pages/ApplicantProfile";
 import EditJobDetails from "./pages/EditJobDetails";
+import Profile from "./pages/Profile";
 
 const App = () => {
   
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -28,12 +30,18 @@ const App = () => {
         await api.get("/users/me")
         setIsLoggedIn(true)
       } catch (error) {
-        console.error(error.response.data.message)
+        console.error(error.response?.data?.message || error.message)
         setIsLoggedIn(false)
+      } finally {
+        setIsLoading(false)
       }
     }
     checkAuth()
   }, [])
+
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>
+  }
 
   return (
 
@@ -50,6 +58,7 @@ const App = () => {
             <Route path="/register" element={<Register />} />
 
             <Route element={<ProtectedRoute isLoggedIn={isLoggedIn} />} >
+              <Route path="/profile" element={< Profile />} />
               <Route path="/jobs" element={<AllJobs />} />
               <Route path="/jobs/:id" element={< JobDetails />} />
               <Route path="/post-job" element={<PostJob />} />

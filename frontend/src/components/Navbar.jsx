@@ -41,6 +41,10 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn }) => {
                 My Jobs
               </Link>
 
+              <Link to="/profile">
+                Profile
+              </Link>
+
               <Link to="/" onClick={handleLogout}>
                 Logout
               </Link>
